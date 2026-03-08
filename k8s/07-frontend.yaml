@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: umairu-frontend
+  namespace: umairu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: umairu-frontend
+  template:
+    metadata:
+      labels:
+        app: umairu-frontend
+    spec:
+      containers:
+        - name: umairu-frontend
+          image: umairu-frontend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: umairu-frontend-svc
+  namespace: umairu
+spec:
+  type: LoadBalancer
+  selector:
+    app: umairu-frontend
+  ports:
+    - port: 80
+      targetPort: 80

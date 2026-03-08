@@ -54,7 +54,6 @@ metadata:
   name: umairu-svc
   namespace: umairu
 spec:
-  type: LoadBalancer
   selector:
     app: umairu
   ports:
