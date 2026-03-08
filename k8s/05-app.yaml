@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: umairu
+  namespace: umairu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: umairu
+  template:
+    metadata:
+      labels:
+        app: umairu
+    spec:
+      initContainers:
+        - name: migrate
+          image: umairu:latest
+          imagePullPolicy: Never
+          command: ["python", "manage.py", "migrate", "--noinput"]
+          envFrom:
+            - configMapRef:
+                name: umairu-config
+            - secretRef:
+                name: umairu-secrets
+      containers:
+        - name: umairu
+          image: umairu:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: umairu-config
+            - secretRef:
+                name: umairu-secrets
+          readinessProbe:
+            httpGet:
+              path: /api/recipes/
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: umairu-svc
+  namespace: umairu
+spec:
+  type: LoadBalancer
+  selector:
+    app: umairu
+  ports:
+    - port: 80
+      targetPort: 8000

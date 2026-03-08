@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: umairu-ingress
+  namespace: umairu
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+spec:
+  rules:
+    - host: umairu.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: umairu-svc
+                port:
+                  number: 80
+          - path: /media
+            pathType: Prefix
+            backend:
+              service:
+                name: umairu-svc
+                port:
+                  number: 80
