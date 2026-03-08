@@ -143,7 +143,9 @@ def import_from_markdown(request):
             continue
         if re.match(r'^###', line):
             if section == 'instructions':
-                instruction_lines.append(f"\n{line[4:].strip()}")
+                # Extract just the section title without the number prefix
+                title = re.sub(r'^\d+\.\s*', '', line[4:].strip())
+                instruction_lines.append(f"\n**{title}**")
             continue
 
         # Skip dividers
@@ -156,7 +158,9 @@ def import_from_markdown(request):
                 data['ingredients'].append(parse_ingredient_line(line))
         elif section == 'instructions':
             if line.strip():
-                instruction_lines.append(line.strip())
+                # Strip markdown bold from step content, keep clean text
+                clean = line.strip()
+                instruction_lines.append(clean)
         elif section == 'notes':
             if line.strip():
                 note_lines.append(line.strip())
